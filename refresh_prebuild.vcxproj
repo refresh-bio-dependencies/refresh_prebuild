@@ -111,7 +111,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(SolutionDir)"prebuild.bat "$(SolutionDir).." $(Configuration)</Command>
+      <Command>call "$(ProjectDir)"prebuild.bat "$(ProjectDir).." $(Configuration)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,7 +130,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(SolutionDir)"prebuild.bat "$(SolutionDir).." $(Configuration)</Command>
+      <Command>call "$(ProjectDir)"prebuild.bat "$(ProjectDir).." $(Configuration)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
