@@ -14,6 +14,7 @@ call :isa-l
 call :libdeflate %2
 call :lz4 %2
 call :zlib-ng %2
+call :zlib-ng-compat %2
 call :zstd %2
 
 goto :eof
@@ -128,6 +129,21 @@ rem **************************************************************************
     @echo "*** Building zlib-ng"
 	cd zlib-ng
 	cmake -B build_vs -S . -DZLIB_COMPAT=OFF -DWITH_GZFILEOP=ON
+	cmake --build build_vs --config %1 -- /m
+	cd ..
+	
+	goto :eof
+
+
+rem **************************************************************************
+:zlib-ng-compat
+	if not exist zlib-ng-compat (
+		goto :eof
+	)
+
+    @echo "*** Building zlib-ng in zlib-compatible mode"
+	cd zlib-ng
+	cmake -B build_vs -S . -DZLIB_COMPAT=ON -DWITH_GZFILEOP=ON
 	cmake --build build_vs --config %1 -- /m
 	cd ..
 	
