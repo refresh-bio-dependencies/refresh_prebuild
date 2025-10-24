@@ -128,8 +128,8 @@ rem **************************************************************************
 
     @echo "*** Building zlib-ng"
 	cd zlib-ng
-	cmake -B build_vs -S . -DZLIB_COMPAT=OFF -DWITH_GZFILEOP=ON
-	cmake --build build_vs --config %1 -- /m
+	cmake -B build-vs -S . -DZLIB_COMPAT=OFF -DWITH_GZFILEOP=ON
+	cmake --build build-vs --config %1 -- /m
 	cd ..
 	
 	goto :eof
@@ -142,9 +142,9 @@ rem **************************************************************************
 	)
 
     @echo "*** Building zlib-ng in zlib-compatible mode"
-	cd zlib-ng
-	cmake -B build_vs -S . -DZLIB_COMPAT=ON -DWITH_GZFILEOP=ON
-	cmake --build build_vs --config %1 -- /m
+	cd zlib-ng-compat
+	cmake -B build-vs -S . -DZLIB_COMPAT=ON -DWITH_GZFILEOP=ON
+	cmake --build build-vs --config %1 -- /m
 	cd ..
 	
 	goto :eof
