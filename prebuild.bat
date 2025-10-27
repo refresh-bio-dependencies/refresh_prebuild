@@ -8,6 +8,7 @@ setlocal
 
 cd %1
 
+call :kmc_core %2
 call :chemfiles %2
 call :igraph %2
 call :isa-l
@@ -18,6 +19,18 @@ call :zlib-ng-compat %2
 call :zstd %2
 
 goto :eof
+
+
+rem **************************************************************************
+:kmc_core
+	if not exist kmc (
+		goto :eof
+	)
+
+	@echo "*** Building kmc"
+	cd kmc
+	MSBuild.exe kmc.sln /t:kmc_core /property:Configuration=%1 /property:Platform=x64
+	cd ..
 
 
 rem **************************************************************************
