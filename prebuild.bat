@@ -2,7 +2,13 @@ rem %1 - $(SolutionDir)
 rem %2 - $(Configuration)
 
 @echo off
-setlocal
+rem setlocal
+setlocal enabledelayedexpansion
+
+set "INC_PATHS="
+set "LIB_PATHS="
+set "LIBS_D="
+set "LIBS_R="
 
 @echo Prebuild start - %1 %2
 
@@ -10,13 +16,19 @@ cd %1
 
 call :kmc_core %2
 call :chemfiles %2
+call :hwloc %2
 call :igraph %2
 call :isa-l
 call :libdeflate %2
 call :lz4 %2
+call :mimalloc %2
+call :oneTBB %2
+call :refresh %2
 call :zlib-ng %2
 call :zlib-ng-compat %2
 call :zstd %2
+
+call :generate_props
 
 goto :eof
 
@@ -71,7 +83,33 @@ rem **************************************************************************
 	cd isa-l
 	nmake -f Makefile.nmake
 	cd ..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\isa-l;$(SolutionDir)3rd_party\isa-l\include;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\isa-l;"
+    set "LIBS_D=!LIBS_D!isa-l_static.lib;"
+    set "LIBS_R=!LIBS_R!isa-l_static.lib;"
 	
+	goto :eof
+
+
+rem **************************************************************************
+:hwloc
+	if not exist hwloc (
+		goto :eof
+	)
+
+	@echo "*** Building hwloc"
+	if not exist hwloc_vs mkdir hwloc_vs
+	cd hwloc_vs
+	
+	cmake ../hwloc/contrib/windows-cmake -DHWLOC_ENABLE_STATIC=ON -DBUILD_SHARED_LIBS=OFF -DHWLOC_WITH_LIBXML2=OFF -DCMAKE_INSTALL_PREFIX="../hwloc_vs/build"
+	cmake --build . --config Release --target install
+	cd ..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\hwloc_vs\build\include;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\hwloc_vs\build\lib;"
+    set "LIBS_D=!LIBS_D!hwloc.lib;"
+    set "LIBS_R=!LIBS_R!hwloc.lib;"
 	goto :eof
 
 
@@ -115,6 +153,11 @@ rem **************************************************************************
 	cmake --build build_vs --config %1 -- /m
 	cd ..
 	
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\libdeflate;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\libdeflate\build_vs\$(Configuration);"
+    set "LIBS_D=!LIBS_D!deflatestatic.lib;"
+    set "LIBS_R=!LIBS_R!deflatestatic.lib;"
+	
 	goto :eof
 
 
@@ -134,6 +177,60 @@ rem **************************************************************************
 
 
 rem **************************************************************************
+:mimalloc
+	if not exist mimalloc (
+		goto :eof		
+	)
+
+	@echo "*** Preparing mimalloc"
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\mimalloc\include;"
+
+	goto :eof
+
+
+rem **************************************************************************
+:oneTBB
+	if not exist oneTBB (
+		goto :eof		
+	)
+
+	@echo "*** Building oneTBB"
+	cd oneTBB
+
+	if not exist build_vs mkdir build_vs
+	cd build_vs
+
+	:: Clear cache
+	if exist CMakeCache.txt del CMakeCache.txt
+
+	cmake .. -DBUILD_SHARED_LIBS=OFF -DTBB_TEST=OFF -DTBB_HWLOC_CONFIG=ON -DHWLOC_ROOT="../../hwloc/hwloc_vs/build" -DCMAKE_INSTALL_PREFIX="../install_vs"
+	cmake --build . --config Release --target install
+	cd ..
+	cd ..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\oneTBB\install_vs\include;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\oneTBB\install_vs\lib;"
+    set "LIBS_D=!LIBS_D!tbb.lib;"
+    set "LIBS_R=!LIBS_R!tbb.lib;"
+	
+	goto :eof
+
+
+rem **************************************************************************
+:refresh
+	if not exist refresh (
+		goto :eof		
+	)
+
+	@echo "*** Preparing REFRESH"
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party;"
+
+	goto :eof
+	
+	
+rem **************************************************************************
 :zlib-ng
 	if not exist zlib-ng (
 		goto :eof
@@ -144,6 +241,11 @@ rem **************************************************************************
 	cmake -B build-vs -S . -DZLIB_COMPAT=OFF -DWITH_GZFILEOP=ON
 	cmake --build build-vs --config %1 -- /m
 	cd ..
+	
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\zlib-ng\build-vs;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\zlib-ng\build-vs\$(Configuration);"
+    set "LIBS_D=!LIBS_D!zlibstatic-ngd.lib;"
+    set "LIBS_R=!LIBS_R!zlibstatic-ng.lib;"
 	
 	goto :eof
 
@@ -179,6 +281,29 @@ rem **************************************************************************
 
 
 rem **************************************************************************
+:generate_props
+set "P=Dependencies.props"
+echo ^<?xml version="1.0" encoding="utf-8"?^> > %P%
+echo ^<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"^> >> %P%
+echo   ^<PropertyGroup Condition="'$(Configuration)'=='Debug'"^> >> %P%
+echo     ^<CustomLibs^>%LIBS_D%^</CustomLibs^> >> %P%
+echo   ^</PropertyGroup^> >> %P%
+echo   ^<PropertyGroup Condition="'$(Configuration)'=='Release'"^> >> %P%
+echo     ^<CustomLibs^>%LIBS_R%^</CustomLibs^> >> %P%
+echo   ^</PropertyGroup^> >> %P%
+echo   ^<ItemDefinitionGroup^> >> %P%
+echo     ^<ClCompile^> >> %P%
+echo       ^<AdditionalIncludeDirectories^>%INC_PATHS%%%^(AdditionalIncludeDirectories^)^</AdditionalIncludeDirectories^> >> %P%
+echo     ^</ClCompile^> >> %P%
+echo     ^<Link^> >> %P%
+echo       ^<AdditionalLibraryDirectories^>%LIB_PATHS%%%^(AdditionalLibraryDirectories^)^</AdditionalLibraryDirectories^> >> %P%
+echo       ^<AdditionalDependencies^>$(CustomLibs)%%^(AdditionalDependencies^)^</AdditionalDependencies^> >> %P%
+echo     ^</Link^> >> %P%
+echo   ^</ItemDefinitionGroup^> >> %P%
+echo ^</Project^> >> %P%
+echo [INFO] Dependencies.props updated.
+goto :eof
+
 :eof
 endlocal
 echo End of prebuild
