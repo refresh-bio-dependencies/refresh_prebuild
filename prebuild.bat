@@ -27,6 +27,8 @@ call :refresh %2
 call :zlib-ng %2
 call :zlib-ng-compat %2
 call :zstd %2
+call :raduls %2
+call :agc %2
 
 call :generate_props
 
@@ -277,7 +279,90 @@ rem **************************************************************************
 	cmake --build build_vs --config %1 -- /m
 	cd ..
 
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\zstd\lib;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\zstd\build_vs\lib\$(Configuration);"
+
+    set "LIBS_D=!LIBS_D!zstd_static.lib;"
+    set "LIBS_R=!LIBS_R!zstd_static.lib;"
+
 	goto :eof
+
+
+rem **************************************************************************
+:raduls
+	if not exist raduls (
+		goto :eof
+	)
+
+    @echo "*** Building raduls"
+	cd raduls
+
+	::via ..\.raduls_transfer.txt client side may configure desired record size for raduls
+	set "TRANSFER_FILE=..\.raduls_transfer.txt"
+	:: raduls_config.h is source ot truth - it contains info regarding record size in compiled lib
+	set "RAD_CONFIG=Raduls\raduls_config.h"
+	set "RAD_LIB=Raduls\x64\%1\Raduls.lib"
+	set "DEFAULT_REC_SIZE=16"
+
+	set "DESIRED_SIZE=%DEFAULT_REC_SIZE%"
+	if exist "%TRANSFER_FILE%" (
+		for /f "tokens=2 delims==" %%A in ('findstr /C:"RADULS_REC_SIZE" "%TRANSFER_FILE%"') do set "DESIRED_SIZE=%%A"
+	)
+
+	:: 2. Get Compiled Size - Changed to tokens=3 to get the value after the macro name
+	set "COMPILED_SIZE=0"
+	if exist "%RAD_CONFIG%" (
+		for /f "tokens=3" %%A in ('findstr /C:"#define RADULS_MAX_REC_SIZE_IN_BYTES" "%RAD_CONFIG%"') do set "COMPILED_SIZE=%%A"
+	)
+
+	:: 3. Decision Logic
+	set "DO_BUILD=false"
+	if not exist "%RAD_LIB%" set "DO_BUILD=true"
+	if %DESIRED_SIZE% GTR %COMPILED_SIZE% set "DO_BUILD=true"
+
+	:: 4. Build execution (Linear style to avoid "unexpected ." errors)
+	if "%DO_BUILD%"=="false" echo [Prebuild] Raduls satisfies requirement (Target: %DESIRED_SIZE%, Compiled: %COMPILED_SIZE%) & goto :raduls_skip
+
+	call echo [Prebuild] Updating Raduls: Target=%%DESIRED_SIZE%% (Current=%%COMPILED_SIZE%%)...
+
+	:: RuntimeLibrary Patch
+	:: mkokot: this may be removed if we are able to compile all as \MT
+	powershell -NoProfile -Command "$p='Raduls\Raduls.vcxproj'; $x=[xml](gc $p); $n=New-Object System.Xml.XmlNamespaceManager($x.NameTable); $n.AddNamespace('m','http://schemas.microsoft.com/developer/msbuild/2003'); foreach($node in $x.SelectNodes('//m:RuntimeLibrary',$n)){$node.InnerText='MultiThreadedDLL'}; $x.Save($p)"
+
+	cd Raduls
+	call msbuild Raduls.vcxproj /p:Configuration=%1 /p:Platform=x64 /p:PreprocessorDefinitions="RADULS_DISPATCH_ONLY_REC_SIZE;RADULS_MAX_REC_SIZE_IN_BYTES=%%DESIRED_SIZE%%;%%(PreprocessorDefinitions)"
+	cd ..
+
+	:raduls_skip
+	cd ..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\raduls\Raduls;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\raduls\Raduls\x64\$(Configuration);"
+
+    set "LIBS_D=!LIBS_D!Raduls.lib;"
+    set "LIBS_R=!LIBS_R!Raduls.lib;"
+
+	goto :eof
+
+rem **************************************************************************
+:agc
+	if not exist agc (
+		goto :eof
+	)
+
+	@echo "*** Building agc"
+	cd agc
+	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64
+	cd ..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\agc\src\lib-cxx;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\agc\x64\$(Configuration);"
+
+    set "LIBS_D=!LIBS_D!lib-cxx.lib;"
+    set "LIBS_R=!LIBS_R!lib-cxx.lib;"
+
+	goto :eof
+
 
 
 rem **************************************************************************
