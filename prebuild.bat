@@ -29,6 +29,7 @@ call :zlib-ng-compat %2
 call :zstd %2
 call :raduls %2
 call :agc %2
+call :refresh_vector
 
 call :generate_props
 
@@ -363,7 +364,38 @@ rem **************************************************************************
 
 	goto :eof
 
+rem **************************************************************************
+:refresh_vector
+	if not exist refresh/vector_functions (
+		goto :eof
+	)
 
+	@echo "*** Building refresh/vector_functions"
+	cd refresh/vector_functions
+	if not exist obj_release mkdir obj_release
+	if not exist obj_debug mkdir obj_debug
+	cd lib
+	cl /EHsc /O2 /c /std:c++20 vectorized_functions.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /c /std:c++20 impl_serial.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_release\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 vectorized_functions.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 impl_serial.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_debug\
+	cd ../../..
+
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party;"
+    set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party;"
+
+    set "LIBS_D=!LIBS_D!\refresh\vector_functions\obj_debug\vectorized_functions.obj;\refresh\vector_functions\obj_debug\impl_serial.obj;\refresh\vector_functions\obj_debug\impl_sse42.obj;\refresh\vector_functions\obj_debug\impl_avx.obj;\refresh\vector_functions\obj_debug\impl_avx2.obj;\refresh\vector_functions\obj_debug\impl_avx512.obj;"
+    set "LIBS_R=!LIBS_R!\refresh\vector_functions\obj_release\vectorized_functions.obj;\refresh\vector_functions\obj_release\impl_serial.obj;\refresh\vector_functions\obj_release\impl_sse42.obj;\refresh\vector_functions\obj_release\impl_avx.obj;\refresh\vector_functions\obj_release\impl_avx2.obj;\refresh\vector_functions\obj_release\impl_avx512.obj;"
+
+	goto :eof
 
 rem **************************************************************************
 :generate_props
