@@ -353,7 +353,11 @@ rem **************************************************************************
 
 	@echo "*** Building agc"
 	cd agc
-	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64
+
+	set "AGC_TOOLSET=v143"
+	if "%VisualStudioVersion%"=="18.0" set "AGC_TOOLSET=v145"
+
+	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64 /property:PlatformToolset=%AGC_TOOLSET%
 	cd ..
 
 	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\agc\src\lib-cxx;"
