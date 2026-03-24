@@ -379,18 +379,18 @@ rem **************************************************************************
 	if not exist obj_release mkdir obj_release
 	if not exist obj_debug mkdir obj_debug
 	cd lib
-	cl /EHsc /O2 /c /std:c++20 vectorized_functions.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 impl_serial.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_release\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 vectorized_functions.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 impl_serial.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_debug\
+	cl /EHsc /O2 /MD /c /std:c++20 vectorized_functions.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 impl_serial.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_release\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 vectorized_functions.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 impl_serial.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_debug\
 	cd ../../..
 
 	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party;"
