@@ -26,6 +26,7 @@ call :oneTBB %2
 call :refresh %2
 call :zlib-ng %2
 call :zlib-ng-compat %2
+call :rapidgzip %2
 call :zstd %2
 call :raduls %2
 call :agc %2
@@ -264,6 +265,19 @@ rem **************************************************************************
 	cmake -B build-vs -S . -DZLIB_COMPAT=ON -DWITH_GZFILEOP=ON
 	cmake --build build-vs --config %1 -- /m
 	cd ..
+	
+	goto :eof
+
+
+rem **************************************************************************
+:rapidgzip
+	if not exist rapidgzip (
+		goto :eof
+	)
+
+    @echo "*** Building rapidgzip"
+	
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\rapidgzip\librapidarchive\src;$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
 	
 	goto :eof
 
