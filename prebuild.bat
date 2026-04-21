@@ -26,6 +26,7 @@ call :oneTBB %2
 call :refresh %2
 call :zlib-ng %2
 call :zlib-ng-compat %2
+call :rapidgzip %2
 call :zstd %2
 call :raduls %2
 call :agc %2
@@ -269,6 +270,19 @@ rem **************************************************************************
 
 
 rem **************************************************************************
+:rapidgzip
+	if not exist indexed_bzip2 (
+		goto :eof
+	)
+
+    @echo "*** Building rapidgzip"
+	
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\indexed_bzip2\src;$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
+	
+	goto :eof
+
+
+rem **************************************************************************
 :zstd
 	if not exist zstd (
 		goto :eof		
@@ -353,7 +367,11 @@ rem **************************************************************************
 
 	@echo "*** Building agc"
 	cd agc
-	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64
+
+	set "AGC_TOOLSET=v143"
+	if "%VisualStudioVersion%"=="18.0" set "AGC_TOOLSET=v145"
+
+	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64 /property:PlatformToolset=%AGC_TOOLSET%
 	cd ..
 
 	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\agc\src\lib-cxx;"
@@ -375,18 +393,18 @@ rem **************************************************************************
 	if not exist obj_release mkdir obj_release
 	if not exist obj_debug mkdir obj_debug
 	cd lib
-	cl /EHsc /O2 /c /std:c++20 vectorized_functions.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 impl_serial.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_release\
-	cl /EHsc /O2 /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_release\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 vectorized_functions.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 impl_serial.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_debug\
-	cl /EHsc /Od /Zi /Zl /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_debug\
+	cl /EHsc /O2 /MD /c /std:c++20 vectorized_functions.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 impl_serial.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_release\
+	cl /EHsc /O2 /MD /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_release\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 vectorized_functions.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 impl_serial.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:SSE2 impl_sse42.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX impl_avx.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX2 impl_avx2.cpp /Fo..\obj_debug\
+	cl /EHsc /Od /Zi /Zl /MDd /c /std:c++20 /arch:AVX512 impl_avx512.cpp /Fo..\obj_debug\
 	cd ../../..
 
 	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party;"
