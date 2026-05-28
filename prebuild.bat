@@ -270,13 +270,13 @@ rem **************************************************************************
 
 rem **************************************************************************
 :rapidgzip
-	if not exist indexed_bzip2 (
+	if not exist librapidarchive (
 		goto :eof
 	)
 
     @echo "*** Building rapidgzip"
 	
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\indexed_bzip2\src;$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
+	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\librapidarchive\src;$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
 	
 	goto :eof
 
