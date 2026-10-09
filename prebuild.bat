@@ -142,7 +142,7 @@ rem **************************************************************************
 	cmake --build build_vs_%1 --config %1
 	cd ..
 	
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\igraph\include;$(SolutionDir)3rd_party\igraph\build_vs_%1\include;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\igraph\include;$(SolutionDir)3rd_party\igraph\build_vs_%1\include;"
 	set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\igraph\build_vs_%1/src/%1;"
 	set "LIBS_D=!LIBS_D!igraph.lib;"
 	set "LIBS_R=!LIBS_R!igraph.lib;"
