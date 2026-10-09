@@ -6,6 +6,7 @@ rem setlocal
 setlocal enabledelayedexpansion
 
 set "INC_PATHS="
+set "EXT_INC_PATHS="
 set "LIB_PATHS="
 set "LIBS_D="
 set "LIBS_R="
@@ -87,7 +88,7 @@ rem **************************************************************************
 	nmake -f Makefile.nmake
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\isa-l;$(SolutionDir)3rd_party\isa-l\include;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\isa-l;$(SolutionDir)3rd_party\isa-l\include;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\isa-l;"
     set "LIBS_D=!LIBS_D!isa-l_static.lib;"
     set "LIBS_R=!LIBS_R!isa-l_static.lib;"
@@ -109,7 +110,7 @@ rem **************************************************************************
 	cmake --build . --config Release --target install
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\hwloc_vs\build\include;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\hwloc_vs\build\include;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\hwloc_vs\build\lib;"
     set "LIBS_D=!LIBS_D!hwloc.lib;"
     set "LIBS_R=!LIBS_R!hwloc.lib;"
@@ -156,7 +157,7 @@ rem **************************************************************************
 	cmake --build build_vs --config %1 -- /m
 	cd ..
 	
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\libdeflate;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\libdeflate;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\libdeflate\build_vs\$(Configuration);"
     set "LIBS_D=!LIBS_D!deflatestatic.lib;"
     set "LIBS_R=!LIBS_R!deflatestatic.lib;"
@@ -187,7 +188,7 @@ rem **************************************************************************
 
 	@echo "*** Preparing mimalloc"
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\mimalloc\include;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\mimalloc\include;"
 
 	goto :eof
 
@@ -212,7 +213,7 @@ rem **************************************************************************
 	cd ..
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\oneTBB\install_vs\include;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\oneTBB\install_vs\include;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\oneTBB\install_vs\lib;"
     set "LIBS_D=!LIBS_D!tbb.lib;"
     set "LIBS_R=!LIBS_R!tbb.lib;"
@@ -228,7 +229,7 @@ rem **************************************************************************
 
 	@echo "*** Preparing REFRESH"
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party;"
 
 	goto :eof
 	
@@ -245,7 +246,7 @@ rem **************************************************************************
 	cmake --build build-vs --config %1 -- /m
 	cd ..
 	
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\zlib-ng\build-vs;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\zlib-ng\build-vs;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\zlib-ng\build-vs\$(Configuration);"
     set "LIBS_D=!LIBS_D!zlibstatic-ngd.lib;"
     set "LIBS_R=!LIBS_R!zlibstatic-ng.lib;"
@@ -276,7 +277,8 @@ rem **************************************************************************
 
     @echo "*** Building rapidgzip"
 	
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\librapidarchive\src;$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\librapidarchive\src;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\refresh\compression\lib\zlib_wrapper;"
 	
 	goto :eof
 
@@ -293,7 +295,7 @@ rem **************************************************************************
 	cmake --build build_vs --config %1 -- /m
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\zstd\lib;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\zstd\lib;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\zstd\build_vs\lib\$(Configuration);"
 
     set "LIBS_D=!LIBS_D!zstd_static.lib;"
@@ -350,7 +352,7 @@ rem **************************************************************************
 	:raduls_skip
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\raduls\Raduls;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\raduls\Raduls;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\raduls\Raduls\x64\$(Configuration);"
 
     set "LIBS_D=!LIBS_D!Raduls.lib;"
@@ -373,7 +375,7 @@ rem **************************************************************************
 	MSBuild.exe agc-dev.sln /t:lib-cxx /property:Configuration=%1 /property:Platform=x64 /property:PlatformToolset=%AGC_TOOLSET%
 	cd ..
 
-	set "INC_PATHS=!INC_PATHS!$(SolutionDir)3rd_party\agc\src\lib-cxx;"
+	set "EXT_INC_PATHS=!EXT_INC_PATHS!$(SolutionDir)3rd_party\agc\src\lib-cxx;"
     set "LIB_PATHS=!LIB_PATHS!$(SolutionDir)3rd_party\agc\x64\$(Configuration);"
 
     set "LIBS_D=!LIBS_D!lib-cxx.lib;"
@@ -392,9 +394,14 @@ echo   ^</PropertyGroup^> >> %P%
 echo   ^<PropertyGroup Condition="'$(Configuration)'=='Release'"^> >> %P%
 echo     ^<CustomLibs^>%LIBS_R%^</CustomLibs^> >> %P%
 echo   ^</PropertyGroup^> >> %P%
+echo   ^<PropertyGroup^> >> %P%
+echo     ^<ExternalIncludePath^>%EXT_INC_PATHS%$(ExternalIncludePath)^</ExternalIncludePath^> >> %P%
+echo   ^</PropertyGroup^> >> %P%
 echo   ^<ItemDefinitionGroup^> >> %P%
 echo     ^<ClCompile^> >> %P%
 echo       ^<AdditionalIncludeDirectories^>%INC_PATHS%%%^(AdditionalIncludeDirectories^)^</AdditionalIncludeDirectories^> >> %P%
+echo       ^<ExternalWarningLevel^>TurnOffAllWarnings^</ExternalWarningLevel^> >> %P%
+echo       ^<DisableAnalyzeExternal^>true^</DisableAnalyzeExternal^> >> %P%
 echo     ^</ClCompile^> >> %P%
 echo     ^<Link^> >> %P%
 echo       ^<AdditionalLibraryDirectories^>%LIB_PATHS%%%^(AdditionalLibraryDirectories^)^</AdditionalLibraryDirectories^> >> %P%
